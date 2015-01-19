@@ -20,7 +20,7 @@ ApplicationWindow {
 
         Grid {
             id: colorgrid
-            columns: main.width / 180
+            columns: main.width / 300
             spacing:0
 
             Repeater {
@@ -51,15 +51,45 @@ ApplicationWindow {
 
                     MouseArea {
                         anchors.fill: parent
-                        onPressed: {
-                            tile.width = tile.width * 2
-                        }
-                        onReleased: {
-                            tile.width = tile.width / 2
+//                        onPressed: {
+//                            tile.width = tile.width * 2
+//                        }
+//                        onReleased: {
+//                            tile.width = tile.width / 2
+//                        }
+                    }
+                } // rectangle tile
+            } // repeater
+        } // grid
+
+        PinchArea {
+            anchors.fill: parent
+            pinch.target: colorgrid
+            pinch.minimumScale: 0.1
+            pinch.maximumScale: 10
+            onPinchStarted: setFrameColor();
+                MouseArea {
+                    id: dragArea
+                    hoverEnabled: true
+                    anchors.fill: parent
+                    drag.target: colorgrid
+
+                    onWheel: {
+                        if (wheel.modifiers & Qt.ControlModifier) {
+                        colorgrid.rotation += wheel.angleDelta.y / 120 * 5;
+                            if (Math.abs(colorgrid.rotation) < 4)
+                            colorgrid.rotation = 0;
+                        } else {
+                        colorgrid.rotation += wheel.angleDelta.x / 120;
+                            if (Math.abs(colorgrid.rotation) < 0.6)
+                            colorgrid.rotation = 0;
+                            var scaleBefore = colorgrid.scale;
+                            colorgrid.scale += colorgrid.scale * wheel.angleDelta.y / 120 / 10;
+                            colorgrid.x -= colorgrid.width * (colorgrid.scale - scaleBefore) / 2.0;
+                            colorgrid.y -=colorgrid.height * (colorgrid.scale - scaleBefore) / 2.0;
                         }
                     }
                 }
-            }
         }
-    }
+    } // flickable
 }
