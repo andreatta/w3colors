@@ -12,6 +12,11 @@ ApplicationWindow {
     height: Screen.height
     visible: true
 
+    property int columnCount: 3
+    property int maxColumnCount: 7
+    property int minColumnCount: 1
+    property int tileWidth: colorgrid.width / colorgrid.columns
+
     Flickable {
         width: main.width
         height: main.height
@@ -20,7 +25,7 @@ ApplicationWindow {
 
         Grid {
             id: colorgrid
-            columns: main.width / 300
+            columns: columnCount
             spacing:0
 
             Repeater {
@@ -51,12 +56,12 @@ ApplicationWindow {
 
                     MouseArea {
                         anchors.fill: parent
-//                        onPressed: {
-//                            tile.width = tile.width * 2
-//                        }
-//                        onReleased: {
-//                            tile.width = tile.width / 2
-//                        }
+                        //                        onPressed: {
+                        //                            tile.width = tile.width * 2
+                        //                        }
+                        //                        onReleased: {
+                        //                            tile.width = tile.width / 2
+                        //                        }
                     }
                 } // rectangle tile
             } // repeater
@@ -65,31 +70,41 @@ ApplicationWindow {
         PinchArea {
             anchors.fill: parent
             pinch.target: colorgrid
-            pinch.minimumScale: 0.1
-            pinch.maximumScale: 10
-            onPinchStarted: setFrameColor();
-                MouseArea {
-                    id: dragArea
-                    hoverEnabled: true
-                    anchors.fill: parent
-                    drag.target: colorgrid
 
-                    onWheel: {
-                        if (wheel.modifiers & Qt.ControlModifier) {
-                        colorgrid.rotation += wheel.angleDelta.y / 120 * 5;
-                            if (Math.abs(colorgrid.rotation) < 4)
-                            colorgrid.rotation = 0;
-                        } else {
-                        colorgrid.rotation += wheel.angleDelta.x / 120;
-                            if (Math.abs(colorgrid.rotation) < 0.6)
-                            colorgrid.rotation = 0;
-                            var scaleBefore = colorgrid.scale;
-                            colorgrid.scale += colorgrid.scale * wheel.angleDelta.y / 120 / 10;
-                            colorgrid.x -= colorgrid.width * (colorgrid.scale - scaleBefore) / 2.0;
-                            colorgrid.y -=colorgrid.height * (colorgrid.scale - scaleBefore) / 2.0;
-                        }
-                    }
-                }
+            onPinchStarted: {
+                console.log(tileWidth)
+            }
+
+            onPinchUpdated: {
+                columnCount = maxColumnCount - Math.ceil(pinch.scale)
+                console.log(Math.ceil(pinch.scale))
+                if (columnCount < minColumnCount)
+                    columnCount = minColumnCount
+
+                if (columnCount > maxColumnCount)
+                    columnCount = maxColumnCount
+                console.log("Scale " + pinch.scale + " tileWidth " + tileWidth + " columnCount " + columnCount)
+            }
+
+            onPinchFinished: {
+                console.log(scale)
+                console.log(tileWidth)
+            }
+
+//            MouseArea {
+//                id: dragArea
+////                hoverEnabled: true
+//                anchors.fill: parent
+////                drag.target: colorgrid
+
+//                onWheel: {
+//                    if (wheel.modifiers & Qt.ControlModifier) {
+//                        console.log(pinch.scale + tileWidth)
+//                        tileWidth *= pinch.scale
+
+//                    }
+//                }
+//            }
         }
     } // flickable
 }
