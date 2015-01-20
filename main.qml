@@ -2,7 +2,6 @@ import QtQuick 2.4
 import QtQuick.Controls 1.3
 import QtQuick.Window 2.2
 import QtQuick.Dialogs 1.2
-
 import "helper.js" as Js
 
 ApplicationWindow {
@@ -13,7 +12,7 @@ ApplicationWindow {
     visible: true
 
     property int columnCount: 3
-    property int maxColumnCount: 7
+    property int maxColumnCount: 10
     property int minColumnCount: 1
     property int tileWidth: colorgrid.width / colorgrid.columns
 
@@ -27,6 +26,16 @@ ApplicationWindow {
             id: colorgrid
             columns: columnCount
             spacing:0
+
+            function setColumnCount(columns) {
+                if (columns < minColumnCount)
+                    columns = minColumnCount
+
+                if (columns > maxColumnCount)
+                    columns = maxColumnCount
+
+                columnCount = columns
+            }
 
             Repeater {
                 model: Js.colornames.length
@@ -76,14 +85,15 @@ ApplicationWindow {
             }
 
             onPinchUpdated: {
-                columnCount = maxColumnCount - Math.ceil(pinch.scale)
-                console.log(Math.ceil(pinch.scale))
-                if (columnCount < minColumnCount)
-                    columnCount = minColumnCount
+                colorgrid.setColumnCount(maxColumnCount - Math.ceil(pinch.scale))
+//                columnCount = maxColumnCount - Math.ceil(pinch.scale)
+//                console.log(Math.ceil(pinch.scale))
+//                if (columnCount < minColumnCount)
+//                    columnCount = minColumnCount
 
-                if (columnCount > maxColumnCount)
-                    columnCount = maxColumnCount
-                console.log("Scale " + pinch.scale + " tileWidth " + tileWidth + " columnCount " + columnCount)
+//                if (columnCount > maxColumnCount)
+//                    columnCount = maxColumnCount
+//                console.log("Scale " + pinch.scale + " tileWidth " + tileWidth + " columnCount " + columnCount)
             }
 
             onPinchFinished: {
@@ -91,20 +101,25 @@ ApplicationWindow {
                 console.log(tileWidth)
             }
 
-//            MouseArea {
+            MouseArea {
 //                id: dragArea
-////                hoverEnabled: true
-//                anchors.fill: parent
-////                drag.target: colorgrid
+                anchors.fill: parent
 
-//                onWheel: {
-//                    if (wheel.modifiers & Qt.ControlModifier) {
-//                        console.log(pinch.scale + tileWidth)
-//                        tileWidth *= pinch.scale
+                onWheel: {
+                    if (wheel.modifiers & Qt.ControlModifier) {
+                        colorgrid.setColumnCount(columnCount - wheel.angleDelta.y / 120)
+//                        columnCount -= (wheel.angleDelta.y / 120)
 
-//                    }
-//                }
-//            }
+//                        if (columnCount < minColumnCount)
+//                            columnCount = minColumnCount
+
+//                        if (columnCount > maxColumnCount)
+//                            columnCount = maxColumnCount
+                    } else if (wheel.modifiers) {
+//                        colorgrid.
+                    }
+                }
+            }
         }
     } // flickable
 }
