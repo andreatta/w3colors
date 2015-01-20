@@ -50,12 +50,10 @@ ApplicationWindow {
                     property int colorB: tile.color.b * 255
 
                     Text {
-                        color: Qt.rgba(255 - colorR, 255 - colorG, 255 - colorB, 255)
+                        color: (((299 * colorR + 587 * colorG + 114 * colorB) / 1000) >= 128)? Qt.darker(tile.color) : ((tile.color == "#000000")? "snow" : Qt.lighter(tile.color))
                         anchors.centerIn: parent
                         horizontalAlignment: Text.AlignHCenter
                         font.pixelSize: tile.width / 10
-                        style: Text.Raised
-                        styleColor: "#202020"
                         text: Js.colornames[index] +
                               "\nRGB(" + colorR+ "," + colorG + "," + colorB + ")" +
                               "\nHex #" + String("00" + colorR.toString(16)).slice(-2) +
