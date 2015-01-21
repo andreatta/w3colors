@@ -39,6 +39,7 @@ ApplicationWindow {
 
             Repeater {
                 model: Js.colornames.length
+
                 Rectangle {
                     id: tile
                     width: main.width / colorgrid.columns
@@ -50,7 +51,10 @@ ApplicationWindow {
                     property int colorB: tile.color.b * 255
 
                     Text {
-                        color: (((299 * colorR + 587 * colorG + 114 * colorB) / 1000) >= 128)? Qt.darker(tile.color) : ((tile.color == "#000000")? "snow" : Qt.lighter(tile.color))
+                        color: (((299 * colorR + 587 * colorG + 114 * colorB) / 1000) >= 128)?
+                                   Qt.darker(tile.color) :
+                                   ((tile.color == "#000000")?
+                                        "snow" : Qt.lighter(tile.color, 2))
                         anchors.centerIn: parent
                         horizontalAlignment: Text.AlignHCenter
                         font.pixelSize: tile.width / 10
@@ -76,45 +80,36 @@ ApplicationWindow {
 
         PinchArea {
             anchors.fill: parent
-            pinch.target: colorgrid
+
+            /* columnCount is not automatically updated from actual Gris.columns.
+               This is necessary to get rid of some jumps in zooming when zooming
+               in and out in the same pinch move. */
+            property int currentColumnCount: columnCount
 
             onPinchStarted: {
-                console.log(tileWidth)
+                currentColumnCount = colorgrid.columns
             }
 
             onPinchUpdated: {
-                colorgrid.setColumnCount(maxColumnCount - Math.ceil(pinch.scale))
-//                columnCount = maxColumnCount - Math.ceil(pinch.scale)
-//                console.log(Math.ceil(pinch.scale))
-//                if (columnCount < minColumnCount)
-//                    columnCount = minColumnCount
-
-//                if (columnCount > maxColumnCount)
-//                    columnCount = maxColumnCount
-//                console.log("Scale " + pinch.scale + " tileWidth " + tileWidth + " columnCount " + columnCount)
-            }
-
-            onPinchFinished: {
-                console.log(scale)
-                console.log(tileWidth)
+                var newScale = Math.floor(pinch.scale)
+                console.log(newScale)
+                if (newScale) {
+                    colorgrid.setColumnCount(currentColumnCount - newScale)
+                } else {
+                    colorgrid.setColumnCount(colorgrid.columns + 1)
+                    currentColumnCount = colorgrid.columns
+                }
             }
 
             MouseArea {
-//                id: dragArea
                 anchors.fill: parent
 
                 onWheel: {
                     if (wheel.modifiers & Qt.ControlModifier) {
                         colorgrid.setColumnCount(columnCount - wheel.angleDelta.y / 120)
-//                        columnCount -= (wheel.angleDelta.y / 120)
-
-//                        if (columnCount < minColumnCount)
-//                            columnCount = minColumnCount
-
-//                        if (columnCount > maxColumnCount)
-//                            columnCount = maxColumnCount
                     } else if (wheel.modifiers) {
-//                        colorgrid.
+                        // scroll
+                        //                        colorgrid.
                     }
                 }
             }
