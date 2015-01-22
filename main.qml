@@ -122,32 +122,32 @@ ApplicationWindow {
                                   String("00" + colorB.toString(16)).slice(-2)
                         }
 
-//                        MouseArea {
-//                            anchors.fill: parent
+                        MouseArea {
+                            anchors.fill: parent
 //                            propagateComposedEvents: true
 //                            preventStealing: true
 
-//                            property int oldTileWidth: tileWidth
+                            property int oldTileWidth: tileWidth
 
-//                            onDoubleClicked: {
-//                                currentColor = Js.colornames[index]
-//                                console.log("clicked " + index)
-//                                rowlayout.state = "fullview"
-//                            }
+                            onDoubleClicked: {
+                                currentColor = Js.colornames[index]
+                                console.log("clicked " + index)
+                                rowlayout.state = "fullview"
+                            }
 
-//                            //                            onReleased: {
-//                            //                                console.log("released " + index)
-//                            //                            }
+                            //                            onReleased: {
+                            //                                console.log("released " + index)
+                            //                            }
 
-//                            onWheel: {
-//                                if (wheel.modifiers & Qt.ControlModifier) {
-//                                    colorgrid.setColumnCount(columnCount - wheel.angleDelta.y / 120)
-//                                } else if (wheel.modifiers) {
-//                                    // scroll
-//                                    //                        colorgrid.
-//                                }
-//                            }
-//                        }
+                            onWheel: {
+                                if (wheel.modifiers & Qt.ControlModifier) {
+                                    colorgrid.setColumnCount(columnCount - wheel.angleDelta.y / 120)
+                                } else if (wheel.modifiers) {
+                                    // scroll
+                                    //                        colorgrid.
+                                }
+                            }
+                        }
                     } // rectangle tile
                 } // repeater
             } // grid
