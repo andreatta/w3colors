@@ -54,7 +54,7 @@ ApplicationWindow {
                         NumberAnimation {
                             target: rowlayout
                             property: "x"
-                            duration: 200
+                            duration: 600
                             easing.type: Easing.InOutQuad
                         }
                     }
@@ -65,7 +65,7 @@ ApplicationWindow {
                         name: "fullview"
                         PropertyChanges {
                             target: rowlayout
-                            x: -Screen.width
+                            x: -colorgrid.width
                         }
                     },
                     State {
@@ -129,6 +129,7 @@ ApplicationWindow {
                                     currentColor = Js.colornames[index]
                                     console.log("clicked " + index)
                                     rowlayout.state = "fullview"
+                                    flick.interactive = false
                                 }
 
                                 onWheel: {
@@ -144,25 +145,16 @@ ApplicationWindow {
                 /* fullview of color */
                 Rectangle {
                     id: fullview
-                    width: Screen.width
-                    height: Screen.height
-                    color: "#dedede"
-
-                    Text {
-                        text: qsTr("Color")
-                    }
-
-                    Rectangle {
-                        anchors.fill: parent
-                        anchors.margins: Screen.width / 12
-                        color: currentColor
-                    }
+                    width: Screen.desktopAvailableWidth
+                    height: colorgrid.implicitHeight
+                    color: currentColor
 
                     MouseArea {
                         anchors.fill: parent
 
                         onClicked: {
                             rowlayout.state = "gridview"
+                            flick.interactive = true
                         }
                     }
                 } // full view
