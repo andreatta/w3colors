@@ -98,7 +98,6 @@ ApplicationWindow {
 
                         MouseArea {
                             anchors.fill: parent
-                            preventStealing: true
 
                             property int oldTileWidth: tileWidth
 
@@ -106,17 +105,10 @@ ApplicationWindow {
                                 currentColor = Js.colornames[index]
                                 console.log("clicked " + index)
                                 flick.state = "fullview"
-                                //                            oldTileWidth = tileWidth
-                                //                            tile.x = 0
-                                //                            tile.y = 0
-                                //                            tile.width = Screen.width
-                                //                            tile.height = Screen.height
                             }
 
                             onReleased: {
                                 console.log("released " + index)
-                                //                            tile.width = oldTileWidth
-                                //                            tile.height = oldTileWidth
                             }
 
                             onWheel: {
@@ -136,11 +128,20 @@ ApplicationWindow {
                 id: fullview
                 width: Screen.width
                 height: Screen.height
-                color: currentColor
+                color: "#dedede"
+
+                Text {
+                    text: qsTr("Color")
+                }
+
+                Rectangle {
+                    anchors.fill: parent
+                    anchors.margins: Screen.width / 12
+                    color: currentColor
+                }
 
                 MouseArea {
                     anchors.fill: parent
-                    preventStealing: true
 
                     onClicked: {
                         flick.state = "gridview"
