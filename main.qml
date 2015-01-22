@@ -6,7 +6,7 @@ import "helper.js" as Js
 
 ApplicationWindow {
     id: main
-    title: qsTr("Colors")
+    title: qsTr("ColorBlokz")
     width: Screen.width
     height: Screen.height
     visible: true
@@ -17,12 +17,32 @@ ApplicationWindow {
     property string currentColor: Js.colornames[0]
     property int tileWidth: colorgrid.width / colorgrid.columns
 
-    Flickable {
-        id: flick
-        width: main.width
-        height: main.height
-        contentHeight: colorgrid.height
-        contentWidth: colorgrid.width
+    PinchArea {
+            anchors.fill: parent
+
+            /* columnCount is not automatically updated from actual Gris.columns.
+               This is necessary to get rid of some jumps in zooming when zooming
+               in and out in the same pinch move. */
+            property int currentColumnCount: columnCount
+
+            onPinchStarted: {
+                currentColumnCount = colorgrid.columns
+            }
+
+            onPinchUpdated: {
+                var newScale = Math.floor(pinch.scale)
+
+                if (newScale) {
+                    colorgrid.setColumnCount(currentColumnCount - newScale)
+                } else {
+                    colorgrid.setColumnCount(colorgrid.columns + 1)
+                    currentColumnCount = colorgrid.columns
+                }
+            }
+        }
+
+    Row {
+        id: rowlayout
 
         transitions: [
             Transition {
@@ -34,6 +54,7 @@ ApplicationWindow {
                 }
             }
         ]
+
         states: [
             State {
                 name: "fullview"
@@ -51,8 +72,13 @@ ApplicationWindow {
             }
         ]
 
-        Row {
-            id: rowlayout
+        Flickable {
+            id: flick
+            width: main.width
+            height: main.height
+            contentHeight: colorgrid.height
+            contentWidth: colorgrid.width
+
             Grid {
                 id: colorgrid
                 columns: columnCount
@@ -96,82 +122,61 @@ ApplicationWindow {
                                   String("00" + colorB.toString(16)).slice(-2)
                         }
 
-                        MouseArea {
-                            anchors.fill: parent
+//                        MouseArea {
+//                            anchors.fill: parent
+//                            propagateComposedEvents: true
+//                            preventStealing: true
 
-                            property int oldTileWidth: tileWidth
+//                            property int oldTileWidth: tileWidth
 
-                            onPressed: {
-                                currentColor = Js.colornames[index]
-                                console.log("clicked " + index)
-                                flick.state = "fullview"
-                            }
+//                            onDoubleClicked: {
+//                                currentColor = Js.colornames[index]
+//                                console.log("clicked " + index)
+//                                rowlayout.state = "fullview"
+//                            }
 
-                            onReleased: {
-                                console.log("released " + index)
-                            }
+//                            //                            onReleased: {
+//                            //                                console.log("released " + index)
+//                            //                            }
 
-                            onWheel: {
-                                if (wheel.modifiers & Qt.ControlModifier) {
-                                    colorgrid.setColumnCount(columnCount - wheel.angleDelta.y / 120)
-                                } else if (wheel.modifiers) {
-                                    // scroll
-                                    //                        colorgrid.
-                                }
-                            }
-                        }
+//                            onWheel: {
+//                                if (wheel.modifiers & Qt.ControlModifier) {
+//                                    colorgrid.setColumnCount(columnCount - wheel.angleDelta.y / 120)
+//                                } else if (wheel.modifiers) {
+//                                    // scroll
+//                                    //                        colorgrid.
+//                                }
+//                            }
+//                        }
                     } // rectangle tile
                 } // repeater
             } // grid
+        }
+
+        Rectangle {
+            id: fullview
+            width: Screen.width
+            height: Screen.height
+            color: "#dedede"
+
+            Text {
+                text: qsTr("Color")
+            }
 
             Rectangle {
-                id: fullview
-                width: Screen.width
-                height: Screen.height
-                color: "#dedede"
+                anchors.fill: parent
+                anchors.margins: Screen.width / 12
+                color: currentColor
+            }
 
-                Text {
-                    text: qsTr("Color")
-                }
+            MouseArea {
+                anchors.fill: parent
 
-                Rectangle {
-                    anchors.fill: parent
-                    anchors.margins: Screen.width / 12
-                    color: currentColor
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-
-                    onClicked: {
-                        flick.state = "gridview"
-                    }
+                onClicked: {
+                    rowlayout.state = "gridview"
                 }
             }
         }
 
-        PinchArea {
-            anchors.fill: parent
-
-            /* columnCount is not automatically updated from actual Gris.columns.
-               This is necessary to get rid of some jumps in zooming when zooming
-               in and out in the same pinch move. */
-            property int currentColumnCount: columnCount
-
-            onPinchStarted: {
-                currentColumnCount = colorgrid.columns
-            }
-
-            onPinchUpdated: {
-                var newScale = Math.floor(pinch.scale)
-
-                if (newScale) {
-                    colorgrid.setColumnCount(currentColumnCount - newScale)
-                } else {
-                    colorgrid.setColumnCount(colorgrid.columns + 1)
-                    currentColumnCount = colorgrid.columns
-                }
-            }
-        }
     } // flickable
 }
