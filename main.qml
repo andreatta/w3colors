@@ -17,29 +17,6 @@ ApplicationWindow {
     property string currentColor: Js.colornames[0]
     property int tileWidth: colorgrid.width / colorgrid.columns
 
-    PinchArea {
-            anchors.fill: parent
-
-            /* columnCount is not automatically updated from actual Gris.columns.
-               This is necessary to get rid of some jumps in zooming when zooming
-               in and out in the same pinch move. */
-            property int currentColumnCount: columnCount
-
-            onPinchStarted: {
-                currentColumnCount = colorgrid.columns
-            }
-
-            onPinchUpdated: {
-                var newScale = Math.floor(pinch.scale)
-
-                if (newScale) {
-                    colorgrid.setColumnCount(currentColumnCount - newScale)
-                } else {
-                    colorgrid.setColumnCount(colorgrid.columns + 1)
-                    currentColumnCount = colorgrid.columns
-                }
-            }
-        }
 
     Row {
         id: rowlayout
@@ -78,6 +55,30 @@ ApplicationWindow {
             height: main.height
             contentHeight: colorgrid.height
             contentWidth: colorgrid.width
+
+            PinchArea {
+                    anchors.fill: parent
+
+                    /* columnCount is not automatically updated from actual Gris.columns.
+                       This is necessary to get rid of some jumps in zooming when zooming
+                       in and out in the same pinch move. */
+                    property int currentColumnCount: columnCount
+
+                    onPinchStarted: {
+                        currentColumnCount = colorgrid.columns
+                    }
+
+                    onPinchUpdated: {
+                        var newScale = Math.floor(pinch.scale)
+
+                        if (newScale) {
+                            colorgrid.setColumnCount(currentColumnCount - newScale)
+                        } else {
+                            colorgrid.setColumnCount(colorgrid.columns + 1)
+                            currentColumnCount = colorgrid.columns
+                        }
+                    }
+                }
 
             Grid {
                 id: colorgrid
@@ -153,6 +154,7 @@ ApplicationWindow {
             } // grid
         }
 
+        /* fullview of color */
         Rectangle {
             id: fullview
             width: Screen.width
