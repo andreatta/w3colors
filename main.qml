@@ -14,69 +14,140 @@ ApplicationWindow {
     property int columnCount: 3
     property int maxColumnCount: 10
     property int minColumnCount: 1
+    property string currentColor: Js.colornames[0]
     property int tileWidth: colorgrid.width / colorgrid.columns
 
     Flickable {
+        id: flick
         width: main.width
         height: main.height
         contentHeight: colorgrid.height
         contentWidth: colorgrid.width
 
-        Grid {
-            id: colorgrid
-            columns: columnCount
-            spacing:0
-
-            function setColumnCount(columns) {
-                if (columns < minColumnCount)
-                    columns = minColumnCount
-
-                if (columns > maxColumnCount)
-                    columns = maxColumnCount
-
-                columnCount = columns
+        transitions: [
+            Transition {
+                NumberAnimation {
+                    target: rowlayout
+                    property: "x"
+                    duration: 200
+                    easing.type: Easing.InOutQuad
+                }
             }
+        ]
+        states: [
+            State {
+                name: "fullview"
+                PropertyChanges {
+                    target: rowlayout
+                    x: -Screen.width
+                }
+            },
+            State {
+                name: "gridview"
+                PropertyChanges {
+                    target: rowlayout
+                    x: 0
+                }
+            }
+        ]
 
-            Repeater {
-                model: Js.colornames.length
+        Row {
+            id: rowlayout
+            Grid {
+                id: colorgrid
+                columns: columnCount
+                spacing:0
 
-                Rectangle {
-                    id: tile
-                    width: main.width / colorgrid.columns
-                    height: width
-                    color: Js.colornames[index]
+                function setColumnCount(columns) {
+                    if (columns < minColumnCount)
+                        columns = minColumnCount
 
-                    property int colorR: tile.color.r * 255
-                    property int colorG: tile.color.g * 255
-                    property int colorB: tile.color.b * 255
+                    if (columns > maxColumnCount)
+                        columns = maxColumnCount
 
-                    Text {
-                        color: (((299 * colorR + 587 * colorG + 114 * colorB) / 1000) >= 128)?
-                                   Qt.darker(tile.color) :
-                                   ((tile.color == "#000000")?
-                                        "snow" : Qt.lighter(tile.color, 2))
-                        anchors.centerIn: parent
-                        horizontalAlignment: Text.AlignHCenter
-                        font.pixelSize: tile.width / 10
-                        text: Js.colornames[index] +
-                              "\nRGB(" + colorR+ "," + colorG + "," + colorB + ")" +
-                              "\nHex #" + String("00" + colorR.toString(16)).slice(-2) +
-                              String("00" + colorG.toString(16)).slice(-2) +
-                              String("00" + colorB.toString(16)).slice(-2)
+                    columnCount = columns
+                }
+
+                Repeater {
+                    model: Js.colornames.length
+
+                    Rectangle {
+                        id: tile
+                        width: main.width / colorgrid.columns
+                        height: width
+                        color: Js.colornames[index]
+
+                        property int colorR: tile.color.r * 255
+                        property int colorG: tile.color.g * 255
+                        property int colorB: tile.color.b * 255
+
+                        Text {
+                            color: (((299 * colorR + 587 * colorG + 114 * colorB) / 1000) >= 128)?
+                                       Qt.darker(tile.color) :
+                                       ((tile.color == "#000000")?
+                                            "snow" : Qt.lighter(tile.color, 2))
+                            anchors.centerIn: parent
+                            horizontalAlignment: Text.AlignHCenter
+                            font.pixelSize: tile.width / 10
+                            text: Js.colornames[index] +
+                                  "\nRGB(" + colorR+ "," + colorG + "," + colorB + ")" +
+                                  "\nHex #" + String("00" + colorR.toString(16)).slice(-2) +
+                                  String("00" + colorG.toString(16)).slice(-2) +
+                                  String("00" + colorB.toString(16)).slice(-2)
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            preventStealing: true
+
+                            property int oldTileWidth: tileWidth
+
+                            onPressed: {
+                                currentColor = Js.colornames[index]
+                                console.log("clicked " + index)
+                                flick.state = "fullview"
+                                //                            oldTileWidth = tileWidth
+                                //                            tile.x = 0
+                                //                            tile.y = 0
+                                //                            tile.width = Screen.width
+                                //                            tile.height = Screen.height
+                            }
+
+                            onReleased: {
+                                console.log("released " + index)
+                                //                            tile.width = oldTileWidth
+                                //                            tile.height = oldTileWidth
+                            }
+
+                            onWheel: {
+                                if (wheel.modifiers & Qt.ControlModifier) {
+                                    colorgrid.setColumnCount(columnCount - wheel.angleDelta.y / 120)
+                                } else if (wheel.modifiers) {
+                                    // scroll
+                                    //                        colorgrid.
+                                }
+                            }
+                        }
+                    } // rectangle tile
+                } // repeater
+            } // grid
+
+            Rectangle {
+                id: fullview
+                width: Screen.width
+                height: Screen.height
+                color: currentColor
+
+                MouseArea {
+                    anchors.fill: parent
+                    preventStealing: true
+
+                    onClicked: {
+                        flick.state = "gridview"
                     }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        //                        onPressed: {
-                        //                            tile.width = tile.width * 2
-                        //                        }
-                        //                        onReleased: {
-                        //                            tile.width = tile.width / 2
-                        //                        }
-                    }
-                } // rectangle tile
-            } // repeater
-        } // grid
+                }
+            }
+        }
 
         PinchArea {
             anchors.fill: parent
@@ -92,25 +163,12 @@ ApplicationWindow {
 
             onPinchUpdated: {
                 var newScale = Math.floor(pinch.scale)
-                console.log(newScale)
+
                 if (newScale) {
                     colorgrid.setColumnCount(currentColumnCount - newScale)
                 } else {
                     colorgrid.setColumnCount(colorgrid.columns + 1)
                     currentColumnCount = colorgrid.columns
-                }
-            }
-
-            MouseArea {
-                anchors.fill: parent
-
-                onWheel: {
-                    if (wheel.modifiers & Qt.ControlModifier) {
-                        colorgrid.setColumnCount(columnCount - wheel.angleDelta.y / 120)
-                    } else if (wheel.modifiers) {
-                        // scroll
-                        //                        colorgrid.
-                    }
                 }
             }
         }
