@@ -26,9 +26,9 @@ ApplicationWindow {
         PinchArea {
             anchors.fill: parent
 
-            /* columnCount is not automatically updated from actual Gris.columns.
-                       This is necessary to get rid of some jumps in zooming when zooming
-                       in and out in the same pinch move. */
+            /* columnCount is not automatically updated from actual Grid.columns.
+             * This is necessary to get rid of some jumps in zooming when zooming
+             * in and out in the same pinch move. */
             property int currentColumnCount: columnCount
 
             onPinchStarted: {
@@ -45,7 +45,6 @@ ApplicationWindow {
                     currentColumnCount = colorgrid.columns
                 }
             }
-
 
             Row {
                 id: rowlayout
@@ -77,7 +76,6 @@ ApplicationWindow {
                         }
                     }
                 ]
-
 
                 Grid {
                     id: colorgrid
@@ -124,8 +122,6 @@ ApplicationWindow {
 
                             MouseArea {
                                 anchors.fill: parent
-                                //                            propagateComposedEvents: true
-                                //                            preventStealing: true
 
                                 property int oldTileWidth: tileWidth
 
@@ -135,16 +131,9 @@ ApplicationWindow {
                                     rowlayout.state = "fullview"
                                 }
 
-                                //                            onReleased: {
-                                //                                console.log("released " + index)
-                                //                            }
-
                                 onWheel: {
                                     if (wheel.modifiers & Qt.ControlModifier) {
                                         colorgrid.setColumnCount(columnCount - wheel.angleDelta.y / 120)
-                                    } else if (wheel.modifiers) {
-                                        // scroll
-                                        //                        colorgrid.
                                     }
                                 }
                             }
@@ -176,8 +165,8 @@ ApplicationWindow {
                             rowlayout.state = "gridview"
                         }
                     }
-                }
-            }
+                } // full view
+            } // row
         } // pinch
     } // flickable
-}
+} // main window
