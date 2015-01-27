@@ -1,12 +1,12 @@
 import QtQuick 2.4
 import QtQuick.Controls 1.3
 import QtQuick.Window 2.2
-import QtQuick.Dialogs 1.2
+//import QtQuick.Dialogs 1.2
 import "helper.js" as Js
 
 ApplicationWindow {
     id: main
-    title: qsTr("ColorBlokz")
+    title: qsTr("w3colors")
     width: Screen.width
     height: Screen.height
     visible: true
@@ -124,12 +124,19 @@ ApplicationWindow {
                                 anchors.fill: parent
 
                                 property int oldTileWidth: tileWidth
+                                property int pressedIndex: 0
 
-                                onDoubleClicked: {
-                                    currentColor = Js.colornames[index]
-                                    console.log("clicked " + index)
-                                    rowlayout.state = "fullview"
-                                    flick.interactive = false
+                                onPressed: {
+                                    pressedIndex = index
+                                }
+
+                                onReleased: {
+                                    if (pressedIndex === index) {
+                                        currentColor = Js.colornames[index]
+                                        console.log("clicked " + index)
+                                        rowlayout.state = "fullview"
+                                        flick.interactive = false
+                                    }
                                 }
 
                                 onWheel: {
@@ -145,8 +152,8 @@ ApplicationWindow {
                 /* fullview of color */
                 Rectangle {
                     id: fullview
-                    width: Screen.desktopAvailableWidth
-                    height: colorgrid.implicitHeight
+                    width: Screen.width
+                    height: colorgrid.height
                     color: currentColor
 
                     MouseArea {
